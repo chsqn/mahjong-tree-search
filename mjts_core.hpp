@@ -68,13 +68,21 @@ namespace mjts{
     int tile;
     int sum;
     int rng;
-    std::array<int,RNG_MAX> out;
-    std::array<int,DPT_MAX> sht_list;
-    std::array<std::array<double,RNG_MAX>,DPT_MAX> rate;
+    std::vector<int> out;
+    std::vector<int> sht_list;
+    std::vector<std::vector<double>> rate;
     Stat tree_search(Player& player, int sht, int mode, std::int64_t disc, std::int64_t wait, int dpt);
     double calc_rate(int dpt);
     _Mjts(const CalshtDW& c, const int m, const Selector<Stat,Player> ns1, const Selector<Stat,Player> ns2, const Condition<Player> cond, const Selector<Stat,Player> proc) :
-      calsht(c), mode_in(m), selector1(ns1), selector2(ns2), condition(cond), process(proc) {}
+      calsht(c),
+      mode_in(m),
+      selector1(ns1),
+      selector2(ns2),
+      condition(cond),
+      process(proc),
+      out(RNG_MAX, 0),
+      sht_list(DPT_MAX, 0),
+      rate(DPT_MAX, std::vector<double>(RNG_MAX, 0.0)) {}
   };
 
   template <class Player>
