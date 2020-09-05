@@ -1,41 +1,40 @@
 # mahjong-tree-search
 
-A tool to calculate winning probabilities for one-player mahjong.
+一人麻雀における和了確率とテンパイ確率を計算する.
 
-[Read this in Japanese (日本語).](README.ja.md)
+[Read this in English.](README.md)
 
-## Usage
+## 使用方法
 
-### Preparation
+### 準備
 
-- Install CMake.
-- Prepare a compiler that supports C++17 or higher.
+- cmakeをインストールします.
+- C++17以上に対応したコンパイラを用意します.
 
-### Build
-- Debug mode
-```shell
-$ mkdir build
-$ cmake .. -DCMAKE_BUILD_TYPE=Debug
-$ make
-```
-
-- Release mode
+### ビルド
+- デバッグモード
 ```shell
 $ mkdir build
 $ cmake .. -DCMAKE_BUILD_TYPE=Release
 $ make
 ```
 
-### Calculate
-1. Execute the program according to the number of tiles and the calculation method.
-2. Enter the hand tiles in "MPSZ" format.
-3. Enter the maximum number of drawing.
-4. The results are output as a table. The "Prb" column is the winning probability, the "Rdy" column is the "tempai" probability. The "Tile" column and the "Disc" column (represents which tile is an unnecessary tile) are output only when the number of hand tiles is 3*N*+2 where *N* is natural number.
+- リリースモード
+```shell
+$ mkdir build
+$ cmake .. -DCMAKE_BUILD_TYPE=Release
+$ make
+```
 
-> **NOTE**: Winning probabilities and tempai probabilities when discarding tiles that increase shangten number are not calculated.
+### 計算
+1. 手牌枚数と計算方法に応じたプログラムを実行します.
+2. MPSZ形式で手牌を入力します.
+3. 最大ツモ回数を入力します.
+4. 結果が表で出力される. Prb列は和了確率, Rdy列はテンパイ確率です. 手牌枚数が3*N*+2(*N*は自然数)枚の場合のみ, Tile列とDisc列(どの牌が不要牌かを表す)が出力されます.
 
-### Examples
-- Number of hand tiles: 13, Method: Strictly
+> **NOTE**: シャンテン数を増加させる牌を捨てた場合の和了確率とテンパイ確率は計算されません.
+
+- 手牌枚数: 13枚, 計算方法: 厳密
 
 ```shell
 $ ./calc1-recu
@@ -52,7 +51,7 @@ Prb     Rdy
 Time (msec.)    0
 ```
 
-- Number of hand tiles: 13, Method: Montecarlo
+- 手牌枚数: 13枚, 計算方法: モンテカルロ
 
 ```shell
 $ ./calc1-prob
@@ -69,7 +68,7 @@ Prb     Rdy
 Time (msec.)    0
 ```
 
-- Number of hand tiles: 14, Method: Strictly
+- 手牌枚数: 14枚, 計算対象: 厳密
 
 ```shell
 Enter 14 tiles.
@@ -93,7 +92,7 @@ Tile    Disc    Prb     Rdy
 Time (msec.)    0
 ```
 
-- Number of hand tiles: 14, Method: Montecarlo
+- 手牌枚数: 14枚, 計算対象: モンテカルロ
 
 ```shell
 Enter 14 tiles.
@@ -117,13 +116,13 @@ Tile    Disc    Prb     Rdy
 Time (msec.)    0
 ```
 
-### Three Player Mahjong mode
-Enable `THREE_PLAYER`.
+### 三人麻雀モード
+`THREE_PLAYER`を有効にします.
 
-Example:
+例:
 ```
 $ cmake .. -DCMAKE_BUILD_TYPE=Release -DTHREE_PLAYER=on
 ```
 
-## Remarks
-- It has been confirmed to work with Bash on Ubuntu on Windows (Ubuntu 18.04). The CMake version used is 3.10.2, the compiler version is GCC 7.4.0.
+## 備考
+- Bash on Ubuntu on Windows (Ubuntu 18.04)で動作を確認しています. 使用したCMakeのバージョンは3.10.2, コンパイラのバージョンはGCC 7.4.0です.

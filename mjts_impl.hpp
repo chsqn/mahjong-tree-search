@@ -2,18 +2,18 @@
 #define MJTS_IMPL_HPP
 
 #include <vector>
-#include "mjts_core.hpp"
 #include "player_core.hpp"
 
 namespace mjts::impl{
   struct Stat{
     double prb = 0.0;
     double rdy = 0.0;
+
     friend bool operator>(const Stat& lhs, const Stat& rhs) {return lhs.prb > rhs.prb;}
     friend bool operator<(const Stat& lhs, const Stat& rhs) {return lhs.prb < rhs.prb;}
-    Stat& operator*(const int n) {prb*=n; rdy*=n; return *this;}
-    Stat& operator+=(const Stat& stat) {prb+=stat.prb; rdy+=stat.rdy; return *this;}
-    Stat& operator/=(const int n) {prb/=n; rdy/=n; return *this;}
+    Stat& operator*(const int n) { prb *= n; rdy *= n; return *this;}
+    Stat& operator+=(const Stat& stat) { prb += stat.prb; rdy += stat.rdy; return *this;}
+    Stat& operator/=(const int n) { prb /= n; rdy /= n; return *this;}
   };
 
   struct Condition{
@@ -21,17 +21,65 @@ namespace mjts::impl{
   };
 
   struct Process{
-    Stat operator()(Player& player, int sht, int mode, std::int64_t disc, std::int64_t wait, int dpt, _Mjts<Stat,Player>& mjts) const;
+    utils::Rate rate;
+
+    Stat operator()(Player& player, int sht, int mode, int dpt, int tile, const std::vector<int>& out, const std::vector<int>& sht_list)
+    {
+      Stat stat;
+      double d = rate(out, dpt);
+
+      stat.prb = d;
+
+      for(int i=0; i<=dpt; ++i){
+        if(sht_list[i] <= 1){
+          stat.rdy += rate.value[i][rate.rng];
+        }
+      }
+      return stat;
+    }
   };
 
-  struct Mjts{
-    _Mjts<Stat,Player> mjts;
-    Mjts(const CalshtDW& c, const int m, Selector<Stat,Player> ns1, Selector<Stat,Player> ns2, Condition cond, Selector<Stat,Player> proc) :
-      mjts(c,m,ns1,ns2,cond,proc) {}
-    Stat calc1(Player& player, int rng);
-    std::vector<Stat> calc2(Player& player, int rng);
-    static Mjts make_mjts_impl_recu(const CalshtDW& calsht, int mode_in);
-    static Mjts make_mjts_impl_prob(const CalshtDW& calsht, int mode_in, const std::vector<int>& loop);
+  template <template <class, class, class, class> class Selector>
+  struct Mjts : public _Mjts<Stat,Player,Selector<Stat,Player,Condition,Process>,Condition,Process>{
+    using super = _Mjts<Stat,Player,Selector<Stat,Player,Condition,Process>,Condition,Process>;
+
+    template <class... Args>
+    Mjts(const CalshtDW& c, const int m, Args... args) : super(c, m, args...) {}
+
+    Stat calc1(Player& player, int rng)
+    {
+      player.set_wall();
+      super::process.rate.sum = player.sum_wall();
+      super::process.rate.rng = rng;
+      auto [sht,mode,disc,wait] = super::calsht(player.hand, player.num/3, super::mode_in);
+      auto stat =  super::tree_search(player, sht, mode, disc, wait, 0);
+
+      return stat;
+    }
+
+    std::vector<Stat> calc2(Player& player, int rng)
+    {
+      std::vector<Stat> stat(K);
+
+      player.set_wall();
+      super::process.rate.sum = player.sum_wall();
+      super::process.rate.rng = rng;
+      auto [sht, mode, disc, wait] = super::calsht(player.hand, player.num/3, super::mode_in);
+
+      for(int i=0; i<K; ++i){
+        if(disc&(INT64_C(1)<<i)){
+          --player.hand[i];
+          --player.num;
+
+          auto [sht_, mode_, disc_, wait_] = super::calsht(player.hand, player.num/3, super::mode_in);
+
+          stat[i] = super::tree_search(player, sht_, mode_, disc_, wait_, 0);
+          ++player.hand[i];
+          ++player.num;
+        }
+      }
+      return stat;
+    }
   };
 }
 

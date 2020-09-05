@@ -4,6 +4,8 @@
 #include "calsht_dw.hpp"
 #include "player_core.hpp"
 #include "settile.hpp"
+#include "mjts_recu.hpp"
+#include "mjts_prob.hpp"
 #include "mjts_impl.hpp"
 
 int main()
@@ -14,9 +16,9 @@ int main()
   CalshtDW calsht;
   Player player;
 #ifdef RECU
-  auto mjts_impl = mjts::impl::Mjts::make_mjts_impl_recu(calsht,7);
+  mjts::impl::Mjts<mjts::Recu> mjts_impl(calsht, 7);
 #elif defined PROB
-  auto mjts_impl = mjts::impl::Mjts::make_mjts_impl_prob(calsht,7,{50,20,10,2});
+  mjts::impl::Mjts<mjts::Prob> mjts_impl(calsht, 7, 50, 20, 10, 2);
 #endif
 
   int rng;
@@ -24,18 +26,16 @@ int main()
   player.num = M;
   std::string str;
 
-  if(!calsht) return 1;
-
   std::cout << "Enter " << M << " tiles.\n";
   std::cin >> str;
   std::cout << "Enter Range\n";
   std::cin >> rng;
-  set_tile(str,player.hand);
-  auto [sht,mode,disc,wait] = calsht(player.hand,M/3,MODE);
+  set_tile(str, player.hand);
+  auto [sht, mode, disc, wait] = calsht(player.hand, M/3, MODE);
   std::cout << "\nThe shanten number is " << sht-1 << std::endl;
 
   auto start = std::chrono::system_clock::now();
-  auto stat = mjts_impl.calc1(player,rng);
+  auto stat = mjts_impl.calc1(player, rng);
   auto end = std::chrono::system_clock::now();
 
   std::cout << "\nPrb\tRdy" << std::endl;

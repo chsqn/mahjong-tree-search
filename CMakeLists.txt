@@ -8,20 +8,28 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall")
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E tar zxvf ${PROJECT_SOURCE_DIR}/index.tar.gz WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
 
-add_library(mjts STATIC calsht_dw.cpp mjts_impl.cpp)
+option(THREE_PLAYER "Three player mode" off)
+
+if(THREE_PLAYER)
+  add_definitions(-DTHREE_PLAYER)
+endif()
+
+include_directories(necessary-and-unnecessary-tiles-calculator)
+
+add_library(calsht_dw STATIC necessary-and-unnecessary-tiles-calculator/calsht_dw.cpp)
 
 add_executable(calc1-recu calc1.cpp)
-target_link_libraries(calc1-recu mjts)
+target_link_libraries(calc1-recu calsht_dw)
 target_compile_definitions(calc1-recu PRIVATE RECU)
 
 add_executable(calc1-prob calc1.cpp)
-target_link_libraries(calc1-prob mjts)
+target_link_libraries(calc1-prob calsht_dw)
 target_compile_definitions(calc1-prob PRIVATE PROB)
 
 add_executable(calc2-recu calc2.cpp)
-target_link_libraries(calc2-recu mjts)
+target_link_libraries(calc2-recu calsht_dw)
 target_compile_definitions(calc2-recu PRIVATE RECU)
 
 add_executable(calc2-prob calc2.cpp)
-target_link_libraries(calc2-prob mjts)
+target_link_libraries(calc2-prob calsht_dw)
 target_compile_definitions(calc2-prob PRIVATE PROB)

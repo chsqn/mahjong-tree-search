@@ -1,0 +1,3 @@
+[submodule "necessary-and-unnecessary-tiles-calculator"]
+	path = necessary-and-unnecessary-tiles-calculator
+	url = https://github.com/tomohxx/necessary-and-unnecessary-tiles-calculator.git
