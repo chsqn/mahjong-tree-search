@@ -23,6 +23,8 @@ int main()
 
   int rng;
 
+  calsht.initialize(INDEX_FILE_PATH);
+
   player.num = M;
   std::string str;
 
